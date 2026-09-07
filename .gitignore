@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Project artifacts
+models/*.joblib
+models/*.npz
+docs/*.pdf
+docs/*.jpg
+
+# Data (don't commit corpora)
+data/real/*
+data/fake/*
+!data/real/.gitkeep
+!data/fake/.gitkeep
+
+# LibreOffice / editor temp files
+.~lock.*#
+*.tmp
+
+# Temporary Word files
+~$*.docx
+.idea/
