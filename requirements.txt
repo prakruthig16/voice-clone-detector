@@ -9,3 +9,6 @@ pandas>=2.0
 tqdm>=4.66
 # Optional deep-learning backend (CNN on spectrograms). Install separately if desired:
 # torch>=2.0
+streamlit
+streamlit-mic-recorder
+imageio-ffmpeg
