@@ -12,3 +12,4 @@ tqdm>=4.66
 streamlit
 streamlit-mic-recorder
 imageio-ffmpeg
+supabase
