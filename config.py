@@ -3,8 +3,10 @@ from pathlib import Path
 
 # ---- Paths -------------------------------------------------------------
 ROOT = Path(__file__).resolve().parent
-DATA_DIR = ROOT / "data"
-REAL_DIR = DATA_DIR / "real"        # bonafide / genuine human speech
+# Use the small voice dataset stored beside the Git repository
+DATA_DIR = ROOT.parent / "small_voice_dataset"
+
+REAL_DIR = DATA_DIR / "real"
 FAKE_DIR = DATA_DIR / "fake"        # cloned / synthetic / spoofed speech
 MODEL_DIR = ROOT / "models"
 DOCS_DIR = ROOT / "docs"

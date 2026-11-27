@@ -1,0 +1,38 @@
+{
+    "best_model": "svm",
+    "test_metrics": {
+        "accuracy": 0.9975757575757576,
+        "precision_fake": 1.0,
+        "recall_fake": 0.9944444444444445,
+        "f1_fake": 0.9972144846796658,
+        "roc_auc": 1.0,
+        "eer": 0.0,
+        "eer_threshold": 0.43403497811507696,
+        "confusion_matrix": [
+            [
+                465,
+                0
+            ],
+            [
+                2,
+                358
+            ]
+        ]
+    },
+    "model_comparison": {
+        "gb": {
+            "cv_f1_mean": 0.9829879273395301,
+            "cv_f1_std": 0.009808903337352575
+        },
+        "rf": {
+            "cv_f1_mean": 0.9861534993395201,
+            "cv_f1_std": 0.004866396134195329
+        },
+        "svm": {
+            "cv_f1_mean": 0.9958556589381438,
+            "cv_f1_std": 0.0030428172491877062
+        }
+    },
+    "test_samples": 825,
+    "feature_count": 152
+}

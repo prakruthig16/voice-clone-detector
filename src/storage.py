@@ -1,6 +1,7 @@
-
 import os
+import time
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import streamlit as st
 from supabase import create_client
@@ -45,12 +46,40 @@ def upload_audio(wav_bytes, label, filename):
     return storage_path
 
 
+def count_dataset():
+    """Count WAV recordings in Supabase without downloading audio."""
+    bucket = get_supabase().storage.from_(BUCKET_NAME)
+    counts = {}
+
+    for folder in ("real", "fake"):
+        count = 0
+        offset = 0
+        limit = 1000
+
+        while True:
+            files = bucket.list(folder, {"limit": limit, "offset": offset})
+
+            count += sum(
+                1 for item in files
+                if item.get("name", "").lower().endswith(".wav")
+            )
+
+            if len(files) < limit:
+                break
+
+            offset += limit
+
+        counts[folder] = count
+
+    return counts["real"], counts["fake"]
+
+
 def download_dataset(real_dir, fake_dir):
-    """Download all saved training recordings into local training folders."""
+    """Download all saved training recordings from Supabase with retries."""
     client = get_supabase()
     bucket = client.storage.from_(BUCKET_NAME)
 
-    total = 0
+    tasks = []
 
     for folder, destination in (
         ("real", Path(real_dir)),
@@ -58,18 +87,55 @@ def download_dataset(real_dir, fake_dir):
     ):
         destination.mkdir(parents=True, exist_ok=True)
 
-        files = bucket.list(folder)
+        offset = 0
+        limit = 1000
 
-        for item in files:
-            filename = item.get("name")
+        while True:
+            files = bucket.list(
+                folder,
+                {"limit": limit, "offset": offset}
+            )
 
-            if not filename or not filename.lower().endswith(".wav"):
-                continue
+            if not files:
+                break
 
-            storage_path = f"{folder}/{filename}"
-            audio_bytes = bucket.download(storage_path)
+            for item in files:
+                filename = item.get("name")
 
-            (destination / filename).write_bytes(audio_bytes)
+                if filename and filename.lower().endswith(".wav"):
+                    tasks.append((
+                        f"{folder}/{filename}",
+                        destination / filename
+                    ))
+
+            if len(files) < limit:
+                break
+
+            offset += limit
+
+    def download_one(task):
+        storage_path, destination = task
+
+        for attempt in range(3):
+            try:
+                audio_bytes = bucket.download(storage_path)
+                destination.write_bytes(audio_bytes)
+                return True
+            except Exception:
+                if attempt == 2:
+                    raise
+                time.sleep(2 * (attempt + 1))
+
+    total = 0
+
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures = [
+            executor.submit(download_one, task)
+            for task in tasks
+        ]
+
+        for future in as_completed(futures):
+            future.result()
             total += 1
 
     return total

@@ -24,3 +24,13 @@ data/fake/*
 # Temporary Word files
 ~$*.docx
 .idea/
+
+# Local datasets and sensitive credentials
+small_voice_dataset/
+.streamlit/secrets.toml
+.env
+.env.*
+
+# Local backup files
+*.backup
+*.backup*
